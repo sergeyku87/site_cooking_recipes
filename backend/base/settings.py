@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-@ols3)%je&++i*7^qi0%o65#1$&+w@_$ek9!3)pladz#hio4wp
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -90,6 +90,10 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static_backend/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -116,10 +120,19 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 6,
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+        #'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     # 'DEFAULT_PERMISSION_CLASSES': (
     #     'rest_framework.permissions.IsAuthenticated',
     # )
 }
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+}
+
+if DEBUG:
+    ...
+    #LOGGING = {}

@@ -26,6 +26,7 @@ class User(AbstractUser):
         verbose_name='Наличие подписки',
     )
     avatar = models.ImageField(
+        upload_to='avatars',
         blank=True,
         verbose_name='Аватар',
         )
