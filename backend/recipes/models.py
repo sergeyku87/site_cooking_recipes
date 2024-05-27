@@ -9,16 +9,21 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=ALLOWED_LEN_NAME,
         verbose_name='Тег',
+        #db_index=True
     )
     slug = models.SlugField(
         max_length=ALLOWED_LEN_NAME,
         verbose_name='Слаг тега',
+        unique=True,
+        #db_index=True,
     )
 
     class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
         #orderind = []
         #index = [models.Index(fields=[<name_field>])]
-        ...
+        
 
     def __str__(self):
         return self.name
@@ -28,6 +33,7 @@ class Ingredient(models.Model):
     name = models.CharField(
         max_length=ALLOWED_LEN_NAME,
         verbose_name='Название ингредиента',
+        unique=True,
     )
     measurement_unit = models.CharField(
         max_length=ALLOWED_LEN_NAME,
@@ -36,7 +42,8 @@ class Ingredient(models.Model):
 
 
     class Meta:
-        ...
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
         #orderind = []
         #index = [models.Index(fields=[<name_field>])]
 
@@ -45,14 +52,13 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     class Presentation(models.IntegerChoices):
-        SHOW = 1
-        NOT_SHOW = 0
+        SHOW = 1, 'Да'
+        NOT_SHOW = 0, 'Нет'
 
-    tags = models.ForeignKey(
-        to=Tag,
-        on_delete=models.PROTECT,
+    tags = models.ManyToManyField(
+        to='Tag',
         verbose_name='Тег',
-        related_name='recipes',
+        #related_name='',
     )
     author = models.ForeignKey(
         to=get_user_model(),
@@ -60,10 +66,10 @@ class Recipe(models.Model):
         verbose_name='Автор',
         related_name='recipes',
     )
-    ingredients = models.ForeignKey(
-        to=Ingredient,
-        on_delete=models.PROTECT,
+    ingredients = models.ManyToManyField(
+        to='Ingredient',
         verbose_name='Ингредиенты',
+        through='RecipeIngredient',
         related_name='recipes',
     )
     is_favorited = models.BooleanField(
@@ -93,9 +99,42 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        ...
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
         #orderind = []
         #index = [models.Index(fields=[<name_field>])]
     
     def __str__(self):
         return self.name
+
+
+class RecipeIngredient(models.Model):
+    recipe = models.ForeignKey(
+        to='Recipe',
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт'
+    )
+    ingredient = models.ForeignKey(
+        to='Ingredient',
+        on_delete=models.CASCADE,
+        verbose_name='Ингредиент',
+    )
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='Количество',
+    )
+
+    class Meta:
+        verbose_name = 'Ингредиент и его количество'
+        verbose_name_plural = 'Ингредиенты и их количество'
+    
+    def __str__(self):
+        return f'{self.ingredient.name} {self.ingredient.measurement_unit}'
+
+from django.db.models.signals import m2m_changed
+
+def dispatch(sender, **kwargs):
+    recipe = Recipe.objects.last()
+    print('dispatch:', recipe)
+
+m2m_changed.connect(dispatch, sender=Recipe.ingredients.through)
+
