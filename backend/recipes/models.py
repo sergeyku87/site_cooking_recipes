@@ -58,6 +58,7 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         to='Tag',
         verbose_name='Тег',
+        blank=True,
         #related_name='',
     )
     author = models.ForeignKey(
@@ -71,6 +72,7 @@ class Recipe(models.Model):
         verbose_name='Ингредиенты',
         through='RecipeIngredient',
         related_name='recipes',
+        blank=True,
     )
     is_favorited = models.BooleanField(
         choices=Presentation.choices,
@@ -112,7 +114,8 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         to='Recipe',
         on_delete=models.CASCADE,
-        verbose_name='Рецепт'
+        verbose_name='Рецепт',
+        related_name='ingredients_for_recipe'
     )
     ingredient = models.ForeignKey(
         to='Ingredient',
@@ -129,12 +132,3 @@ class RecipeIngredient(models.Model):
     
     def __str__(self):
         return f'{self.ingredient.name} {self.ingredient.measurement_unit}'
-
-from django.db.models.signals import m2m_changed
-
-def dispatch(sender, **kwargs):
-    recipe = Recipe.objects.last()
-    print('dispatch:', recipe)
-
-m2m_changed.connect(dispatch, sender=Recipe.ingredients.through)
-

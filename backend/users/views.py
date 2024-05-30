@@ -48,6 +48,19 @@ class UserViewSet(DjoserUserViewSet):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors)
+    
+    @action(['post', 'delete'], detail=True,)
+    def subscribe(self, request, *args, **kwargs):
+        print(request)
+        return Response({'plug': 'Plug'})
+    
+    @action(['get'], detail=False,)
+    def subscriptions(self, request, *args, **kwargs):
+        print(request)
+        return Response({'plug': 'Plug'})
+    
+    
+# -------------------------------------------------------------
     # unused methods are disabled
     def activation(self, request, *args, **kwargs):
         return Response(
