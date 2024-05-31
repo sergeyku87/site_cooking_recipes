@@ -10,7 +10,9 @@ import sys
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
-formatter = logging.Formatter()
+formatter = logging.Formatter(
+    "%(name)s-%(asctime)s-%(levelname)s-%(message)s"
+)
 
 logger.setLevel(logging.DEBUG)
 handler.setLevel(logging.DEBUG)

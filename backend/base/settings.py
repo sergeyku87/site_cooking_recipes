@@ -1,13 +1,22 @@
 from pathlib import Path
 import os
+import sys
+
+from base.utils import db, on_or_off
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-@ols3)%je&++i*7^qi0%o65#1$&+w@_$ek9!3)pladz#hio4wp'
+# PLUG-------------------------------------------------------------------
+KEY = 'django-insecure-@ols3)%je&++i*7^qi0%o65#1$&+w@_$ek9!3)pladz#hio4wp'
+#-------------------------------------------------------------------------
+SECRET_KEY = os.getenv('SECRET_KEY', KEY) or sys.exit("Need SECRET KEY for correct work")
 
-DEBUG = True
+DEBUG = on_or_off(os.getenv('TRIGGER'))
 
-ALLOWED_HOSTS = ['*']
+
+ALLOWED_HOSTS = [
+    os.getenv('ALLOWED_HOST', '*'),
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -19,6 +28,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
+    "corsheaders",
     'djoser',
 
     'api.apps.ApiConfig',
@@ -29,6 +39,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -57,10 +68,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'base.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': db(os.getenv('NAME_DATABASE'))
 }
 
 AUTH_USER_MODEL = 'users.User'
@@ -94,7 +102,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static_backend/'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -121,8 +129,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 6,
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-        #'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        #'rest_framework.authentication.SessionAuthentication',
     ],
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     # 'DEFAULT_PERMISSION_CLASSES': (
@@ -133,6 +141,11 @@ REST_FRAMEWORK = {
 DJOSER = {
     'LOGIN_FIELD': 'email',
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:9000",
+    "http://127.0.0.1:9000",
+]
 
 if DEBUG:
     ...

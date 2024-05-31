@@ -1,0 +1,11 @@
+.env
+.venv
+.git
+.vscode
+.idea
+
+env
+venv
+# db.sqlite3
+README.md
+Dockerfile

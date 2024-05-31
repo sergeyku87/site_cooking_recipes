@@ -14,11 +14,13 @@ from recipes.serializers import (
 class IngredientViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    pagination_class = None
 
 
 class TagViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = None
 
 
 class RecipeViewSet(ModelViewSet):

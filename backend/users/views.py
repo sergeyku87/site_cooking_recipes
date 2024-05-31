@@ -31,7 +31,7 @@ class UserViewSet(DjoserUserViewSet):
     def me(self, request, *args, **kwargs):
         return super().me(request, *args, **kwargs)
     
-    @action(['patch', 'delete'], detail=False, url_path='me/avatar')
+    @action(['patch', 'delete', 'put'], detail=False, url_path='me/avatar')
     def avatar(self, request, *args, **kwargs):
         instance = get_object_or_404(
             self.queryset,
