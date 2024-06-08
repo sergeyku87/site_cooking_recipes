@@ -5,7 +5,7 @@ volumes:
 
 services:
   backend:
-    container_name: foodgram-back
+    container_name: foodgram-backend
     build: ./backend/
     depends_on:
       - db
@@ -21,7 +21,7 @@ services:
       - foodgram_media:/media
 
   frontend:
-    container_name: foodgram-front
+    container_name: foodgram-frontend
     build: ./frontend
     command: cp -r /app/build/. /static_frontend/
     volumes:
@@ -35,7 +35,7 @@ services:
       - foodgram_pg_data:/var/lib/postgresql/data
 
   gateway:
-    container_name: foodgram-proxy
+    container_name: foodgram-gateway
     build: ./nginx/
     ports:
       - 9000:80

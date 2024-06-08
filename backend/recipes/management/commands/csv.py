@@ -6,6 +6,7 @@ from pathlib import Path
 from recipes.models import Ingredient
 from recipes.utils import logger
 
+
 class Command(BaseCommand):
     """
     Command for fill table Ingredient.
@@ -28,7 +29,11 @@ class Command(BaseCommand):
             if full_path.exists() and full_path.is_file():
                 fieldnames = ['name', 'measurement_unit']
                 with open(full_path, 'r', encoding='utf-8') as file:
-                    csv_reader = csv.DictReader(file, delimiter = ",", fieldnames=fieldnames)
+                    csv_reader = csv.DictReader(
+                        file,
+                        delimiter=",",
+                        fieldnames=fieldnames
+                    )
                     for row in csv_reader:
                         Ingredient.objects.create(
                             name=row['name'],

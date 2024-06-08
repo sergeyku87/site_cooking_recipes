@@ -5,11 +5,8 @@ import sys
 from base.utils import db, on_or_off
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# PLUG-------------------------------------------------------------------
-KEY = 'django-insecure-@ols3)%je&++i*7^qi0%o65#1$&+w@_$ek9!3)pladz#hio4wp'
-#-------------------------------------------------------------------------
-SECRET_KEY = os.getenv('SECRET_KEY', KEY) or sys.exit("Need SECRET KEY for correct work")
+K  = 'django-insecure-@ols3)%je&++i*7^qi0%o65#1$&+w@_$ek9!3)pladz#hio4wp'
+SECRET_KEY = os.getenv('SECRET_KEY', K) or sys.exit("Need SECRET KEY for correct work")
 
 DEBUG = on_or_off(os.getenv('TRIGGER'))
 
@@ -28,7 +25,9 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
+    'django_filters',
     "corsheaders",
+    'shortener',
     'djoser',
 
     'api.apps.ApiConfig',
@@ -39,7 +38,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -68,7 +67,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'base.wsgi.application'
 
 DATABASES = {
-    'default': db(os.getenv('NAME_DATABASE'))
+    'default': db(os.getenv('NAME_DATABASE', 'default'))
 }
 
 AUTH_USER_MODEL = 'users.User'
@@ -130,23 +129,64 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        #'rest_framework.authentication.SessionAuthentication',
     ],
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
-    # 'DEFAULT_PERMISSION_CLASSES': (
-    #     'rest_framework.permissions.IsAuthenticated',
-    # )
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 DJOSER = {
     'LOGIN_FIELD': 'email',
 }
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_URLS_REGEX = r'^/api/.*$'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:9000",
     "http://127.0.0.1:9000",
 ]
 
-if DEBUG:
-    ...
-    #LOGGING = {}
+LOGGING = {
+    'version': 1,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        }
+    },
+    'formatters': {
+        'console': {
+            'format': '%(name)-12s %(levelname)-8s %(message)s'
+        },
+        'file': {
+            'format': '%(message)s'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'console',
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'formatter': 'file',
+            'filename': 'quaries.sql',
+        },
+        'file_v2': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'file',
+            'filename': 'quaries_v2.sql',
+            'backupCount': 10,
+            'maxBytes': 5242880,
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': [],
+        }
+    }
+}

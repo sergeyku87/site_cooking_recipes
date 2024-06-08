@@ -6,10 +6,7 @@ from rest_framework.routers import SimpleRouter
 
 from recipes.views import IngredientViewSet, RecipeViewSet, TagViewSet
 from users.views import UserViewSet
-from users.routers import CustomRouter
 
-
-#router_v1 = CustomRouter()
 router_v1 = SimpleRouter()
 router_v1.register(r'users', UserViewSet, basename='user')
 router_v1.register(r'recipes', RecipeViewSet, basename='recipe')
@@ -27,6 +24,3 @@ if settings.DEBUG:
         settings.MEDIA_URL,
         document_root=settings.MEDIA_ROOT
     )
-
-for route in router_v1.urls:
-    print(route)
