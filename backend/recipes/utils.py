@@ -74,17 +74,6 @@ def debug(func):
     return inner
 
 
-def all_fields(class_model):
-    fields = [field.__str__() for field in class_model._meta.get_fields()]
-    fields = [
-        field for field in fields if field.startswith(
-            class_model.__name__.lower()
-        )
-    ]
-    fields = [field.split('.')[-1] for field in fields]
-    return fields
-
-
 def representation_image(request, image_url):
     """Image save in db show how URL."""
     protocol = request.scheme

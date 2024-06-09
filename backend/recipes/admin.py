@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from recipes.mixins import CSVMixin
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -33,14 +34,18 @@ class RecipeAdmin(admin.ModelAdmin):
 
 
 @admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
+class TagAdmin(CSVMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
+
+    csv_fields = ('name', 'slug')
 
 
 @admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin):
+class IngredientAdmin(CSVMixin, admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
+
+    csv_fields = ('name', 'measurement_unit')
 
 
 @admin.register(Favorite)

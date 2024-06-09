@@ -1,10 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
+from django.shortcuts import redirect, render
+from django.urls import path
 
+import csv
 from rest_framework import serializers
 
+from recipes.forms import CsvImportForm
 from recipes.variables import (
+    REQUIRED_FIELDS_FOR_PATCH,
     VALIDATE_MSG_IMAGE,
     VALIDATE_MSG_INGREDIENT,
     VALIDATE_MSG_TAG,
@@ -54,8 +59,45 @@ class ValidateRecipeMixin:
         return value
 
     def validate(self, attrs):
+        if self.partial:
+            for need_field in REQUIRED_FIELDS_FOR_PATCH:
+                if need_field not in self.initial_data:
+                    raise serializers.ValidationError(
+                        f'Отсутствует {need_field}'
+                    )
         # Replace key 'ingredients_for_recipe' on 'ingredients'
         if attrs and attrs.get('ingredients_for_recipe'):
             ingredients = attrs.pop('ingredients_for_recipe')
             attrs.update(ingredients=ingredients)
         return super().validate(attrs)
+
+
+class CSVMixin():
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('csv-upload/', self.upload_csv),
+        ]
+        return my_urls + urls
+
+    def upload_csv(self, request):
+        if request.method == "POST":
+            csv_file = request.FILES["csv_file"]
+            decoded_file = csv_file.read().decode('utf8').splitlines()
+            reader = csv.DictReader(
+                decoded_file,
+                delimiter=",",
+                fieldnames=self.csv_fields,
+            )
+            for row in reader:
+                try:
+                    self.model.objects.create(**row)
+                except Exception as err:
+                    self.message_user(request, f'Ошибка {err}')
+                    pass
+            return redirect("..")
+        form = CsvImportForm()
+        payload = {"form": form}
+        return render(
+            request, "admin/csv_import.html", payload
+        )

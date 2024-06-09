@@ -63,7 +63,7 @@ class CustomIngredientSerializer(serializers.ModelSerializer):
         fields = 'id', 'name', 'measurement_unit', 'amount'
 
     def to_internal_value(self, data):
-        if data.get('amount') < 1:
+        if int(data.get('amount')) < 1:
             raise serializers.ValidationError(VALIDATE_MSG_COUNT_INGREDIENT)
         id_ingredient = data.pop('id')
         if not Ingredient.objects.filter(id=id_ingredient).exists():

@@ -30,16 +30,14 @@ from recipes.serializers import (
     RecipeSerializer,
     TagSerializer,
 )
-from recipes.utils import all_fields, delete_or_400
+from recipes.utils import delete_or_400
 from recipes.variables import (
     ERROR_RESPONSE_CART,
     ERROR_RESPONSE_FAVORITE,
-    FORMAT_ERR_PATCH,
     FORMAT_FILE_DOWNLOAD,
     FORMAT_SHORT_LINK,
     PERMISSION_IS_AUTH,
     PERMISSION_IS_OWNER,
-    REQUIRED_FIELDS_FOR_PATCH,
 )
 
 
@@ -196,19 +194,3 @@ class RecipeViewSet(ModelViewSet):
         else:
             permission_classes = [IsAuthenticatedOrReadOnly]
         return [permission() for permission in permission_classes]
-
-    def partial_update(self, request, *args, **kwargs):
-        fields = all_fields(Recipe)
-        for data in request.data:
-            if data not in fields:
-                return Response(
-                    {'error': FORMAT_ERR_PATCH.format(data)},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        for need_field in REQUIRED_FIELDS_FOR_PATCH:
-            if need_field not in request.data:
-                return Response(
-                    {'need_field': need_field},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        return super().partial_update(request, *args, **kwargs)
