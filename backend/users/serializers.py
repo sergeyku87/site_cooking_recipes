@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.password_validation import validate_password
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from rest_framework import serializers
@@ -34,7 +35,12 @@ class UserPOSTSerializer(serializers.ModelSerializer):
             'last_name',
             'password',
         )
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {
+            'password': {
+                'write_only': True,
+                'validators': [validate_password],
+            }
+        }
 
     def create(self, validated_data):
         validated_data['password'] = make_password(

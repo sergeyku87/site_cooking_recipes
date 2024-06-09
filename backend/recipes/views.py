@@ -23,6 +23,7 @@ from recipes.models import (
     ShoppingCart,
     Tag,
 )
+from recipes.paginations import PageLimitPagination
 from recipes.permissions import IsOwner
 from recipes.serializers import (
     CartOrFavoriteSerializer,
@@ -64,6 +65,7 @@ class RecipeViewSet(ModelViewSet):
         'author'
     ).order_by('-time_create')
     serializer_class = RecipeSerializer
+    pagination_class = PageLimitPagination
     permission_classes = [IsAuthenticatedOrReadOnly]
     filterset_class = RecipeFilter
     filter_backends = (DjangoFilterBackend,)
@@ -121,8 +123,9 @@ class RecipeViewSet(ModelViewSet):
                         ingredient[1],
                     )
                 )
-
-            return HttpResponse(buffer, content_type='text/csv')
+            response = HttpResponse(buffer.getvalue(), content_type='text/plain')
+            response['Content-Disposition'] = 'attachment; filename="list-for-buy.txt"'
+            return response
 
     @action(['post', 'delete'], detail=True, url_path='shopping_cart')
     def shopping_cart(self, request, *args, **kwargs):
