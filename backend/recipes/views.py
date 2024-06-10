@@ -36,6 +36,7 @@ from recipes.variables import (
     ERROR_RESPONSE_CART,
     ERROR_RESPONSE_FAVORITE,
     FORMAT_FILE_DOWNLOAD,
+    FORMAT_FULL_LINK,
     FORMAT_SHORT_LINK,
     PERMISSION_IS_AUTH,
     PERMISSION_IS_OWNER,
@@ -73,13 +74,14 @@ class RecipeViewSet(ModelViewSet):
     @action(['get'], detail=True, url_path='get-link')
     def get_link(self, request, *args, **kwargs):
         recipe = get_object_or_404(Recipe, id=kwargs.get('pk'))
-        link = request.get_full_path().replace('get-link/', '')
+        link = request.get_full_path().replace('get-link/', '').replace('/api/', '')
         user = recipe.author
-
+        full_link = FORMAT_FULL_LINK.format(request.scheme, request.get_host(), link)
+        
         if user.urlmap_set.filter(full_url=link).exists():
-            short_link = user.urlmap_set.get(full_url=link).short_url
-        else:
-            short_link = shortener.create(recipe.author, link)
+            short_link = user.urlmap_set.get(full_url=full_link).short_url
+        short_link = shortener.create(recipe.author, full_link)
+
         return Response(
             {
                 'short-link': FORMAT_SHORT_LINK.format(

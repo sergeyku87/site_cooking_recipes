@@ -5,6 +5,7 @@ REQUIRED_FIELDS_FOR_PATCH: tuple = ('ingredients', 'tags')
 M2M = 'ManyRelatedManager'
 
 FORMAT_ERR_PATCH: str = 'This field <| {} |> not correct'
+FORMAT_FULL_LINK: str = '{}://{}/{}'
 FORMAT_SHORT_LINK: str = '{}://{}/s/{}'
 FORMAT_FILE_DOWNLOAD: str = '{} - {} {}\n'
 

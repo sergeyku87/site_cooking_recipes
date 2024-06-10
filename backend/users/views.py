@@ -94,6 +94,7 @@ class UserViewSet(DjoserUserViewSet):
                 user=request.user,
                 subscriber=subscriber,
             )
+
             if not created:
                 return Response(
                     {'error': ERROR_MSG_SUBSCRIBE_CREATE},

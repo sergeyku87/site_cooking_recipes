@@ -12,6 +12,7 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=ALLOWED_LEN_NAME,
         verbose_name='Тег',
+        unique=True,
     )
     slug = models.SlugField(
         max_length=ALLOWED_LEN_NAME,

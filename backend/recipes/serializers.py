@@ -16,9 +16,11 @@ from recipes.variables import (
     VALIDATE_MSG_INGREDIENT,
     VALIDATE_MSG_UNIQUE,
 )
+from users.models import Subscription
 
 
 class AuthorSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField()
     class Meta:
         model = get_user_model()
         fields = (
@@ -30,6 +32,12 @@ class AuthorSerializer(serializers.ModelSerializer):
             'is_subscribed',
             'avatar',
         )
+
+    def get_is_subscribed(self, obj):
+        return Subscription.objects.filter(
+            user=self.context.get('request').user,
+            subscriber=obj,
+        ).exists()
 
 
 class TagSerializer(serializers.ModelSerializer):
