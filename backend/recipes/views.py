@@ -106,7 +106,10 @@ class RecipeViewSet(ModelViewSet):
         ingredients_for_buy = {}
 
         for ingredient in ingredients:
-            if ingredient.ingredient.name not in ingredients_for_buy:
+            if not (
+                ingredient.ingredient.name,
+                ingredient.ingredient.measurement_unit
+            ) in ingredients_for_buy:
                 ingredients_for_buy[
                     (
                         ingredient.ingredient.name,
