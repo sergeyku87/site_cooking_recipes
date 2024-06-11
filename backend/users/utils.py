@@ -42,7 +42,7 @@ def cyrilic_to_latinic(string):
         if ord(sign) > 127:
             try:
                 result += alphabet[sign]
-            except:
+            except KeyError:
                 result += '-'
         else:
             result += sign
