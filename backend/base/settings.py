@@ -1,3 +1,5 @@
+from django.core.management.utils import get_random_secret_key
+
 from pathlib import Path
 import os
 import sys
@@ -5,8 +7,8 @@ import sys
 from base.utils import db, on_or_off
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-K  = 'django-insecure-@ols3)%je&++i*7^qi0%o65#1$&+w@_$ek9!3)pladz#hio4wp'
-SECRET_KEY = os.getenv('SECRET_KEY', K) or sys.exit("Need SECRET KEY for correct work")
+
+SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key()) or sys.exit("Need SECRET KEY for correct work")
 
 DEBUG = on_or_off(os.getenv('TRIGGER'))
 

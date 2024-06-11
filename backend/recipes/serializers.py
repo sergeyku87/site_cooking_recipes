@@ -21,6 +21,7 @@ from users.models import Subscription
 
 class AuthorSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
+
     class Meta:
         model = get_user_model()
         fields = (

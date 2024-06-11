@@ -74,10 +74,15 @@ class RecipeViewSet(ModelViewSet):
     @action(['get'], detail=True, url_path='get-link')
     def get_link(self, request, *args, **kwargs):
         recipe = get_object_or_404(Recipe, id=kwargs.get('pk'))
-        link = request.get_full_path().replace('get-link/', '').replace('/api/', '')
+        link = request.get_full_path().replace(
+            'get-link/', ''
+        ).replace('/api/', '')
         user = recipe.author
-        full_link = FORMAT_FULL_LINK.format(request.scheme, request.get_host(), link)
-        
+        full_link = FORMAT_FULL_LINK.format(
+            request.scheme,
+            request.get_host(),
+            link,
+        )
         if user.urlmap_set.filter(full_url=link).exists():
             short_link = user.urlmap_set.get(full_url=full_link).short_url
         short_link = shortener.create(recipe.author, full_link)
@@ -125,8 +130,13 @@ class RecipeViewSet(ModelViewSet):
                         ingredient[1],
                     )
                 )
-            response = HttpResponse(buffer.getvalue(), content_type='text/plain')
-            response['Content-Disposition'] = 'attachment; filename="list-for-buy.txt"'
+            response = HttpResponse(
+                buffer.getvalue(),
+                content_type='text/plain'
+            )
+            response['Content-Disposition'] = (
+                'attachment; filename="list-for-buy.txt"'
+            )
             return response
 
     @action(['post', 'delete'], detail=True, url_path='shopping_cart')
