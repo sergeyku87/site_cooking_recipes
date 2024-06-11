@@ -41,7 +41,7 @@ def cyrilic_to_latinic(string):
     for sign in string:
         if ord(sign) > 127:
             try:
-                result += alphabet[sign]
+                result += alphabet[sign.lower()]
             except KeyError:
                 result += '-'
         else:

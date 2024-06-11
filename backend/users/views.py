@@ -116,16 +116,14 @@ class UserViewSet(DjoserUserViewSet):
 
     @action(['get'], detail=False,)
     def subscriptions(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
-            response = Subscription.objects.filter(user=request.user)
-            page = self.paginate_queryset([sub.subscriber for sub in response])
-            serializer = SubscribeSerializer(
-                page,
-                many=True,
-                context={'request': request}
-            )
-            return self.get_paginated_response(serializer.data)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        response = Subscription.objects.filter(user=request.user)
+        page = self.paginate_queryset([sub.subscriber for sub in response])
+        serializer = SubscribeSerializer(
+            page,
+            many=True,
+            context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)
 
     # disabled unused methods
 
