@@ -27,8 +27,31 @@ def short_name(name):
     return name
 
 
+def cyrilic_to_latinic(string):
+    alphabet = {
+        'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
+        'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i',
+        'й': 'j', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
+        'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
+        'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
+        'ш': 'sh', 'щ': 'shch', 'ы': 'i', 'э': 'e', 'ю': 'yu',
+        'я': 'ya'
+    }
+    result = ''
+    for sign in string:
+        if ord(sign) > 127:
+            try:
+                result += alphabet[sign]
+            except:
+                result += '-'
+        else:
+            result += sign
+    return result
+
+
 def base64_to_image(data, name_image="default"):
     """Convert image in format base64 in FILE IN MEMORY."""
+    name_image = cyrilic_to_latinic(name_image)
     name_image = short_name(name_image)
     result = re.search(
         "data:image/(?P<ext>.*?);base64,(?P<code>.*)",

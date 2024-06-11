@@ -35,10 +35,13 @@ class AuthorSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        return Subscription.objects.filter(
-            user=self.context.get('request').user,
-            subscriber=obj,
-        ).exists()
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            return Subscription.objects.filter(
+                user=self.context.get('request').user,
+                subscriber=obj,
+            ).exists()
+        return False
 
 
 class TagSerializer(serializers.ModelSerializer):
