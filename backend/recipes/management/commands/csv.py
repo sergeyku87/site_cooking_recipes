@@ -31,14 +31,13 @@ class Command(BaseCommand):
                 with open(full_path, 'r', encoding='utf-8') as file:
                     csv_reader = csv.DictReader(
                         file,
-                        delimiter=",",
+                        delimiter=',',
                         fieldnames=fieldnames
                     )
+                    ingredients = []
                     for row in csv_reader:
-                        Ingredient.objects.create(
-                            name=row['name'],
-                            measurement_unit=row['measurement_unit']
-                        )
+                        ingredients.append(Ingredient(**row))
+                    Ingredient.objects.bulk_create(ingredients)
                     return 'successfully'
         except Exception as exc:
             logger.error(exc)

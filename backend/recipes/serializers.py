@@ -4,16 +4,16 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import serializers, validators
 
+from recipes.fields import CustomImageField
 from recipes.mixins import ValidateRecipeMixin
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-from recipes.utils import base64_to_image, representation_image
+from recipes.utils import representation_image
 from recipes.variables import (
     M2M,
     VALIDATE_MSG_COMMON,
     VALIDATE_MSG_COUNT_INGREDIENT,
     VALIDATE_MSG_EXIST_INGREDIENT,
     VALIDATE_MSG_EXIST_TAG,
-    VALIDATE_MSG_INGREDIENT,
     VALIDATE_MSG_UNIQUE,
 )
 from users.models import Subscription
@@ -58,7 +58,6 @@ class TagSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(VALIDATE_MSG_COMMON)
         if not self.Meta.model.objects.filter(id=data).exists():
             raise serializers.ValidationError(VALIDATE_MSG_EXIST_TAG)
-
         return self.Meta.model.objects.get(id=data)
 
 
@@ -86,14 +85,6 @@ class CustomIngredientSerializer(serializers.ModelSerializer):
         )
         data.update(ingredient=ingredient)
         return data
-
-
-class CustomImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if not data:
-            raise serializers.ValidationError(VALIDATE_MSG_INGREDIENT)
-        name_image = self.parent.initial_data.get('name', 'default')
-        return base64_to_image(data, name_image=name_image)
 
 
 class RecipeSerializer(ValidateRecipeMixin, serializers.ModelSerializer):

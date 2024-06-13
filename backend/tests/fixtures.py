@@ -60,7 +60,7 @@ class FixtureMixin(APITestCase):
             "username": "vasya.pupkin",
             "first_name": "Вася",
             "last_name": "Иванов",
-            "password": "Qwerty123"
+            "password": "superQwerty123"
         }
 
     def get_token(self, username, email, password):

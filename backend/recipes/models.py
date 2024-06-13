@@ -99,11 +99,11 @@ class Recipe(models.Model):
     )
     time_create = models.DateTimeField(
         auto_now_add=True,
-        verbose_name="Время создания"
+        verbose_name='Время создания',
     )
     time_update = models.DateTimeField(
         auto_now=True,
-        verbose_name="Время изменения"
+        verbose_name='Время изменения',
     )
 
     class Meta:

@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from recipes.forms import RicepeIngredientForm
 from recipes.mixins import CSVMixin
 from recipes.models import (
     Favorite,
@@ -15,6 +16,7 @@ from recipes.models import (
 class RecipeIngredientAmountInline(admin.TabularInline):
     model = RecipeIngredient
     fields = ('recipe', 'ingredient', 'amount')
+    formset = RicepeIngredientForm
 
 
 @admin.register(Recipe)
@@ -23,7 +25,6 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author')
     filter_horizontal = ('tags',)
     inlines = (RecipeIngredientAmountInline,)
-    exclude = ('ingredients',)
 
     def show_popularity(self, obj):
         if Statistic.objects.filter(recipe=obj).exists():

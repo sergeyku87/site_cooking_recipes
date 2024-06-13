@@ -118,4 +118,5 @@ Pillow==9.0.0
 }
 ```
 ***
+В файле config директории base установите значение DEVELOP в True, если вы в начале разработке, или False, если готовитесь развернуть проэкт на сервере.
 [^1]: OpenApi doc доступна после выполнения docker compose up в папке infra, по адресу http://localhost/api/docs/

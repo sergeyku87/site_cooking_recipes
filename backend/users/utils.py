@@ -11,7 +11,9 @@ import sys
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
-formatter = logging.Formatter("%(name)s-%(asctime)s-%(levelname)s-%(message)s")
+formatter = logging.Formatter(
+    '%(name)s-%(asctime)s-%(levelname)s-%(message)s'
+)
 
 logger.setLevel(logging.DEBUG)
 handler.setLevel(logging.DEBUG)
@@ -22,8 +24,8 @@ logger.addHandler(handler)
 def short_name(name):
     if len(name) > 20:  # magic number
         name = name[:20]
-        name = name.rstrip().split(" ")[:2]  # first two word
-        return "-".join(name)
+        name = name.rstrip().split(' ')[:2]  # first two word
+        return '-'.join(name)
     return name
 
 
@@ -49,28 +51,28 @@ def cyrilic_to_latinic(string):
     return result
 
 
-def base64_to_image(data, name_image="default"):
+def base64_to_image(data, name_image='default'):
     """Convert image in format base64 in FILE IN MEMORY."""
     name_image = cyrilic_to_latinic(name_image)
     name_image = short_name(name_image)
     result = re.search(
-        "data:image/(?P<ext>.*?);base64,(?P<code>.*)",
+        'data:image/(?P<ext>.*?);base64,(?P<code>.*)',
         data,
         re.DOTALL
     )
     if result:
-        ext = result.groupdict().get("ext")
-        code = result.groupdict().get("code")
+        ext = result.groupdict().get('ext')
+        code = result.groupdict().get('code')
     else:
-        return "Not correct"
+        return 'Not correct'
 
     image_byte = base64.b64decode(code)
     io_bytes = io.BytesIO(image_byte)
 
     image = InMemoryUploadedFile(
         io_bytes,
-        "ImageField",
-        name_image + "." + ext,
+        'ImageField',
+        name_image + '.' + ext,
         ext.upper(),
         sys.getsizeof(io_bytes),
         None,
@@ -82,16 +84,16 @@ def debug(func):
     """Decorator for input debug mesage in console."""
 
     def inner(*args, **kwargs):
-        print("-" * 30)
-        logger.debug(f"{func.__name__!r}")
-        logger.debug(f"args: {func.__code__.co_varnames}")
+        print('-' * 30)
+        logger.debug(f'{func.__name__!r}')
+        logger.debug(f'args: {func.__code__.co_varnames}')
         print()
         for name, arg in zip(func.__code__.co_varnames, args):
             logger.debug(name)
             logger.debug(arg)
 
-        logger.debug(f"kwargs: {[kwarg for kwarg in kwargs]}")
-        print("-" * 30)
+        logger.debug(f'kwargs: {[kwarg for kwarg in kwargs]}')
+        print('-' * 30)
         return func(*args, **kwargs)
 
     return inner
@@ -101,10 +103,10 @@ def representation_image(request, image_url):
     """Image save in db show how URL."""
     protocol = request.scheme
     domain = request.get_host()
-    return f"{protocol}://{domain}{image_url}"
+    return f'{protocol}://{domain}{image_url}'
 
 
-def delete_or_400(model, msg="Bad Request", *args, **kwargs):
+def delete_or_400(model, msg='Bad Request', *args, **kwargs):
     """
     Delete instance and return Response with status 204 or
     return Response with 400 status.
@@ -112,4 +114,4 @@ def delete_or_400(model, msg="Bad Request", *args, **kwargs):
     if model.objects.filter(*args, **kwargs).exists():
         model.objects.get(*args, **kwargs).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    return Response({"error": msg}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'error': msg}, status=status.HTTP_400_BAD_REQUEST)

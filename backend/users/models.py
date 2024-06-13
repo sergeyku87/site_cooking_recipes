@@ -1,7 +1,13 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
 
-from users.variables import ALLOWED_LEN_EMAIL_OR_PASSWORD, ALLOWED_LEN_NAME
+from users.variables import (
+    ALLOWED_LEN_EMAIL_OR_PASSWORD,
+    ALLOWED_LEN_NAME,
+    UNCORRECT_NAME,
+    VALIDATION_MSG_NAME,
+)
 
 
 class User(AbstractUser):
@@ -23,15 +29,13 @@ class User(AbstractUser):
         max_length=ALLOWED_LEN_EMAIL_OR_PASSWORD,
         verbose_name='Пароль',
     )
-    is_subscribed = models.BooleanField(
-        default=False,
-        verbose_name='Наличие подписки',
-    )
     avatar = models.ImageField(
         upload_to='avatars',
         blank=True,
         verbose_name='Аватар',
     )
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username',]
 
     class Meta:
         ordering = ['id']
@@ -40,6 +44,12 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    def clean(self):
+        if self.username == UNCORRECT_NAME:
+            raise ValidationError(
+                VALIDATION_MSG_NAME.format(UNCORRECT_NAME)
+            )
 
 
 class Subscription(models.Model):

@@ -5,12 +5,19 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from rest_framework import serializers
 
+from users.fields import CustomImageField
 from users.models import Subscription
-from users.utils import base64_to_image, representation_image
-from users.variables import VALIDATION_MSG_ERROR
+from users.utils import representation_image
+from users.variables import (
+    UNCORRECT_NAME,
+    VALIDATION_MSG_ERROR,
+    VALIDATION_MSG_NAME,
+)
 
 
 class UserGETSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField('get_is_subscribed')
+
     class Meta:
         model = get_user_model()
         fields = (
@@ -22,6 +29,14 @@ class UserGETSerializer(serializers.ModelSerializer):
             'is_subscribed',
             'avatar',
         )
+
+    def get_is_subscribed(self, obj):
+        if self.context.get('request').user.is_authenticated:
+            return Subscription.objects.filter(
+                user=obj,
+                subscriber=self.context.get('request').user,
+            ).exists()
+        return False
 
 
 class UserPOSTSerializer(serializers.ModelSerializer):
@@ -42,23 +57,18 @@ class UserPOSTSerializer(serializers.ModelSerializer):
             }
         }
 
+    def validate_username(self, value):
+        if value == UNCORRECT_NAME:
+            raise serializers.ValidationError(
+                VALIDATION_MSG_NAME.format(UNCORRECT_NAME)
+            )
+        return value
+
     def create(self, validated_data):
         validated_data['password'] = make_password(
             validated_data.get('password')
         )
         return super().create(validated_data)
-
-
-class CustomImageField(serializers.Field):
-    def to_representation(self, value):
-        return representation_image(
-            self.context.get('request'),
-            value.url
-        )
-
-    def to_internal_value(self, data):
-        prefix_name_image = self.context.get('request').user.username
-        return base64_to_image(data, prefix_name_image)
 
 
 class AvatarSerializer(serializers.Serializer):
@@ -108,10 +118,12 @@ class SubscribeSerializer(serializers.Serializer):
         return obj.recipes_user.count()
 
     def get_is_subscribed(self, obj):
-        return Subscription.objects.filter(
-            user=obj,
-            subscriber=self.context.get('request').user,
-        ).exists()
+        if self.context.get('request').user.is_authenticated:
+            return Subscription.objects.filter(
+                user=obj,
+                subscriber=self.context.get('request').user,
+            ).exists()
+        return False
 
     def get_recipes(self, obj):
         request = self.context.get('request')

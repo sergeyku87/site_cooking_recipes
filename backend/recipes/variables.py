@@ -22,7 +22,7 @@ VALIDATE_MSG_COUNT_INGREDIENT: str = 'Количество ингредиент�
 VALIDATE_MSG_EXIST_INGREDIENT: str = 'Не существующий ингредиент'
 
 VALIDATE_MSG_COMMON: str = 'Не корректные данные'
-VALIDATE_MSG_UNIQUE: str = "Такой рецепт с таким описанием уже есть."
+VALIDATE_MSG_UNIQUE: str = 'Такой рецепт с таким описанием уже есть.'
 VALIDATE_MSG_IMAGE: str = 'Некорректный тип загружаемого изображения'
 
 PERMISSION_IS_AUTH: tuple = ('download_shopping_cart',)

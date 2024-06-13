@@ -81,12 +81,12 @@ class CSVMixin():
         return my_urls + urls
 
     def upload_csv(self, request):
-        if request.method == "POST":
-            csv_file = request.FILES["csv_file"]
+        if request.method == 'POST':
+            csv_file = request.FILES['csv_file']
             decoded_file = csv_file.read().decode('utf8').splitlines()
             reader = csv.DictReader(
                 decoded_file,
-                delimiter=",",
+                delimiter=',',
                 fieldnames=self.csv_fields,
             )
             for row in reader:
@@ -95,9 +95,9 @@ class CSVMixin():
                 except Exception as err:
                     self.message_user(request, f'Ошибка {err}')
                     pass
-            return redirect("..")
+            return redirect('..')
         form = CsvImportForm()
-        payload = {"form": form}
+        payload = {'form': form}
         return render(
-            request, "admin/csv_import.html", payload
+            request, 'admin/csv_import.html', payload
         )

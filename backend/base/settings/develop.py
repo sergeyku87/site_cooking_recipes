@@ -4,18 +4,14 @@ from pathlib import Path
 import os
 import sys
 
-from base.utils import db, on_or_off
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key()) or sys.exit("Need SECRET KEY for correct work")
+SECRET_KEY = get_random_secret_key()
 
-DEBUG = on_or_off(os.getenv('TRIGGER'))
+DEBUG = True
 
-
-ALLOWED_HOSTS = [
-    os.getenv('ALLOWED_HOST', '*'),
-]
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -28,9 +24,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
-    "corsheaders",
+    'corsheaders',
     'shortener',
     'djoser',
+    'drf_yasg',
 
     'api.apps.ApiConfig',
     'recipes.apps.RecipesConfig',
@@ -69,7 +66,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'base.wsgi.application'
 
 DATABASES = {
-    'default': db(os.getenv('NAME_DATABASE', 'default'))
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 AUTH_USER_MODEL = 'users.User'
@@ -103,7 +103,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static_backend/'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -126,8 +126,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 6,
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
@@ -148,47 +146,3 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:9000",
     "http://127.0.0.1:9000",
 ]
-
-# LOGGING = {
-#     'version': 1,
-#     'filters': {
-#         'require_debug_true': {
-#             '()': 'django.utils.log.RequireDebugTrue',
-#         }
-#     },
-#     'formatters': {
-#         'console': {
-#             'format': '%(name)-12s %(levelname)-8s %(message)s'
-#         },
-#         'file': {
-#             'format': '%(message)s'
-#         }
-#     },
-#     'handlers': {
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'console',
-#         },
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'formatter': 'file',
-#             'filename': 'quaries.sql',
-#         },
-#         'file_v2': {
-#             'level': 'DEBUG',
-#             'class': 'logging.handlers.RotatingFileHandler',
-#             'formatter': 'file',
-#             'filename': 'quaries_v2.sql',
-#             'backupCount': 10,
-#             'maxBytes': 5242880,
-#         },
-#     },
-#     'loggers': {
-#         'django.db.backends': {
-#             'level': 'DEBUG',
-#             'handlers': [],
-#         }
-#     }
-# }
