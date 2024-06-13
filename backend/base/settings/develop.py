@@ -1,8 +1,6 @@
 from django.core.management.utils import get_random_secret_key
 
 from pathlib import Path
-import os
-import sys
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
