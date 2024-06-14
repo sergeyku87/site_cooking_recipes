@@ -138,7 +138,6 @@ dmypy.json
 .idea
 .vscode
 
-static/
 media/
 
 # http clien

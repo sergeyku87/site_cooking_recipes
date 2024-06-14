@@ -3,8 +3,8 @@ from django.core.management.base import BaseCommand
 import csv
 from pathlib import Path
 
-from recipes.models import Ingredient
-from recipes.utils import logger
+from ingredients.models import Ingredient
+from ingredients.utils import logger
 
 
 class Command(BaseCommand):

@@ -4,16 +4,16 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import serializers, validators
 
+from api.tags.serializers import TagSerializer
+from ingredients.models import Ingredient
 from recipes.fields import CustomImageField
 from recipes.mixins import ValidateRecipeMixin
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from recipes.models import Recipe, RecipeIngredient
 from recipes.utils import representation_image
 from recipes.variables import (
     M2M,
-    VALIDATE_MSG_COMMON,
     VALIDATE_MSG_COUNT_INGREDIENT,
     VALIDATE_MSG_EXIST_INGREDIENT,
-    VALIDATE_MSG_EXIST_TAG,
     VALIDATE_MSG_UNIQUE,
 )
 from users.models import Subscription
@@ -42,23 +42,6 @@ class AuthorSerializer(serializers.ModelSerializer):
                 subscriber=obj,
             ).exists()
         return False
-
-
-class TagSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
-    name = serializers.CharField(read_only=True)
-    slug = serializers.SlugField(read_only=True)
-
-    class Meta:
-        model = Tag
-        fields = 'id', 'name', 'slug',
-
-    def to_internal_value(self, data):
-        if not isinstance(data, int):
-            raise serializers.ValidationError(VALIDATE_MSG_COMMON)
-        if not self.Meta.model.objects.filter(id=data).exists():
-            raise serializers.ValidationError(VALIDATE_MSG_EXIST_TAG)
-        return self.Meta.model.objects.get(id=data)
 
 
 class CustomIngredientSerializer(serializers.ModelSerializer):
@@ -162,12 +145,6 @@ class RecipeSerializer(ValidateRecipeMixin, serializers.ModelSerializer):
             instance.is_favorited = is_favorited
             instance.is_in_shopping_cart = is_in_shopping_cart
         return super().to_representation(instance)
-
-
-class IngredientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ingredient
-        fields = '__all__'
 
 
 class CartOrFavoriteSerializer(serializers.Serializer):

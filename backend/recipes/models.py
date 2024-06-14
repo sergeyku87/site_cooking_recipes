@@ -8,54 +8,13 @@ from recipes.mixins import CommonForM2M
 from recipes.variables import ALLOWED_LEN_NAME, MINIMUM_TIME_COOKING
 
 
-class Tag(models.Model):
-    name = models.CharField(
-        max_length=ALLOWED_LEN_NAME,
-        verbose_name='Тег',
-        unique=True,
-    )
-    slug = models.SlugField(
-        max_length=ALLOWED_LEN_NAME,
-        verbose_name='Слаг тега',
-        unique=True,
-        db_index=True,
-    )
-
-    class Meta:
-        verbose_name = 'Тег'
-        verbose_name_plural = 'Теги'
-
-    def __str__(self):
-        return self.name
-
-
-class Ingredient(models.Model):
-    name = models.CharField(
-        max_length=ALLOWED_LEN_NAME,
-        verbose_name='Название ингредиента',
-        unique=True,
-        db_index=True,
-    )
-    measurement_unit = models.CharField(
-        max_length=ALLOWED_LEN_NAME,
-        verbose_name='Единица измерения',
-    )
-
-    class Meta:
-        verbose_name = 'Ингредиент'
-        verbose_name_plural = 'Ингредиенты'
-
-    def __str__(self):
-        return self.name
-
-
 class Recipe(models.Model):
     class Status(models.IntegerChoices):
         ADDED = 1, 'Да'
         NOT_ADDED = 0, 'Нет'
 
     tags = models.ManyToManyField(
-        to='Tag',
+        to='tags.Tag',
         verbose_name='Тег',
         blank=True,
     )
@@ -66,7 +25,7 @@ class Recipe(models.Model):
         related_name='recipes_user',
     )
     ingredients = models.ManyToManyField(
-        to='Ingredient',
+        to='ingredients.Ingredient',
         verbose_name='Ингредиенты',
         through='RecipeIngredient',
         related_name='recipes',
@@ -122,7 +81,7 @@ class RecipeIngredient(models.Model):
         related_name='ingredients_for_recipe'
     )
     ingredient = models.ForeignKey(
-        to='Ingredient',
+        to='ingredients.Ingredient',
         on_delete=models.CASCADE,
         verbose_name='Ингредиент',
     )

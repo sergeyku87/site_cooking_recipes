@@ -1,8 +1,11 @@
+from django.views.generic import TemplateView
 from django.urls import include, path
 
 from rest_framework.routers import SimpleRouter
 
-from recipes.views import IngredientViewSet, RecipeViewSet, TagViewSet
+from ingredients.views import IngredientViewSet
+from recipes.views import RecipeViewSet
+from tags.views import TagViewSet
 from users.views import UserViewSet
 
 router_v1 = SimpleRouter()
@@ -13,5 +16,9 @@ router_v1.register(r'ingredients', IngredientViewSet, basename='ingredient')
 
 urlpatterns = [
     path('auth/', include('djoser.urls.authtoken')),
+    path('docs/', TemplateView.as_view(
+        template_name='redoc.html',
+    )
+    )
 ]
 urlpatterns += router_v1.urls

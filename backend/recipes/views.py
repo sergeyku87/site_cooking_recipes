@@ -5,31 +5,27 @@ from django_filters.rest_framework import DjangoFilterBackend
 from io import StringIO
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import (
     IsAuthenticated,
     IsAuthenticatedOrReadOnly
 )
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.viewsets import ModelViewSet
 from shortener import shortener
 
-from recipes.filters import IngredientFilter, RecipeFilter
+
+from recipes.filters import RecipeFilter
 from recipes.models import (
     Favorite,
-    Ingredient,
     Recipe,
     RecipeIngredient,
     ShoppingCart,
-    Tag,
 )
 from recipes.paginations import PageLimitPagination
 from recipes.permissions import IsOwner
-from recipes.serializers import (
+from api.recipes.serializers import (
     CartOrFavoriteSerializer,
-    IngredientSerializer,
     RecipeSerializer,
-    TagSerializer,
 )
 from recipes.utils import delete_or_400
 from recipes.variables import (
@@ -41,21 +37,6 @@ from recipes.variables import (
     PERMISSION_IS_AUTH,
     PERMISSION_IS_OWNER,
 )
-
-
-class IngredientViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
-    queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
-    pagination_class = None
-    filterset_class = IngredientFilter
-    filter_backends = (DjangoFilterBackend,)
-
-
-class TagViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
-    pagination_class = None
-    permission_classes = []
 
 
 class RecipeViewSet(ModelViewSet):

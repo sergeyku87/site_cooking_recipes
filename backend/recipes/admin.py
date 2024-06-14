@@ -1,15 +1,12 @@
 from django.contrib import admin
 
 from recipes.forms import RicepeIngredientForm
-from recipes.mixins import CSVMixin
 from recipes.models import (
     Favorite,
-    Ingredient,
     Recipe,
     RecipeIngredient,
     ShoppingCart,
     Statistic,
-    Tag,
 )
 
 
@@ -24,6 +21,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'author', 'show_popularity')
     search_fields = ('name', 'author')
     filter_horizontal = ('tags',)
+    exclude = ('is_favorited', 'is_in_shopping_cart')
     inlines = (RecipeIngredientAmountInline,)
 
     def show_popularity(self, obj):
@@ -32,21 +30,6 @@ class RecipeAdmin(admin.ModelAdmin):
         return 0
 
     show_popularity.short_description = 'Количество добавление в избранное'
-
-
-@admin.register(Tag)
-class TagAdmin(CSVMixin, admin.ModelAdmin):
-    prepopulated_fields = {'slug': ('name',)}
-
-    csv_fields = ('name', 'slug')
-
-
-@admin.register(Ingredient)
-class IngredientAdmin(CSVMixin, admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
-
-    csv_fields = ('name', 'measurement_unit')
 
 
 @admin.register(Favorite)

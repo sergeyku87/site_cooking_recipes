@@ -31,7 +31,9 @@ INSTALLED_APPS = [
     'djoser',
 
     'api.apps.ApiConfig',
+    'ingredients.apps.IngredientsConfig',
     'recipes.apps.RecipesConfig',
+    'tags.apps.TagsConfig',
     'users.apps.UsersConfig',
 ]
 
@@ -106,6 +108,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static_backend/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = '/media/'
@@ -118,8 +121,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        "ОПЦИИ": {
-            "min_length": 8,
+        "OPTIONS": {
+            "min_length": 9,
         },
     },
     {
@@ -132,6 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 6,
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
