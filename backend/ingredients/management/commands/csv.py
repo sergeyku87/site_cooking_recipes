@@ -5,7 +5,6 @@ import logging
 from pathlib import Path
 
 from ingredients.models import Ingredient
-from ingredients.utils import logger
 
 
 logger = logging.getLogger(__name__)
