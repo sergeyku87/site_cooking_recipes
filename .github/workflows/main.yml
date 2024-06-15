@@ -31,6 +31,7 @@ jobs:
         pip install -r ./backend/requirements.txt 
     - name: Test with flake8 and django tests
       env:
+        DJANGO_SETTINGS_MODULE: 'base.settings.product'
         POSTGRES_USER: django_user
         POSTGRES_PASSWORD: django_password
         POSTGRES_DB: django_db
