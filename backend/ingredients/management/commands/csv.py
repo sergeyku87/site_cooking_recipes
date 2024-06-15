@@ -1,10 +1,22 @@
 from django.core.management.base import BaseCommand
 
 import csv
+import logging
 from pathlib import Path
 
 from ingredients.models import Ingredient
 from ingredients.utils import logger
+
+
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler()
+formatter = logging.Formatter(
+    '%(name)s-%(asctime)s-%(levelname)s-%(message)s'
+)
+logger.setLevel(logging.DEBUG)
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 class Command(BaseCommand):

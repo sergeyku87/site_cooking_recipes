@@ -1,12 +1,9 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
 from django.db import models
 
 from users.variables import (
     ALLOWED_LEN_EMAIL_OR_PASSWORD,
     ALLOWED_LEN_NAME,
-    UNCORRECT_NAME,
-    VALIDATION_MSG_NAME,
 )
 
 
@@ -44,12 +41,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-
-    def clean(self):
-        if self.username == UNCORRECT_NAME:
-            raise ValidationError(
-                VALIDATION_MSG_NAME.format(UNCORRECT_NAME)
-            )
 
 
 class Subscription(models.Model):

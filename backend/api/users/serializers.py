@@ -4,15 +4,15 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
-from users.fields import CustomImageField
-from users.models import Subscription
-from users.utils import representation_image
-from users.variables import (
-    UNCORRECT_NAME,
+from api.users.fields import CustomImageField
+from api.fixtures.utils import representation_image, validate_fields
+from api.fixtures.variables import (
     VALIDATION_MSG_ERROR,
     VALIDATION_MSG_NAME,
 )
+from users.models import Subscription
 
 
 class UserGETSerializer(serializers.ModelSerializer):
@@ -54,15 +54,35 @@ class UserPOSTSerializer(serializers.ModelSerializer):
             'password': {
                 'write_only': True,
                 'validators': [validate_password],
-            }
+            },
+            'username': {
+                'validators': [
+                    UniqueValidator(
+                        get_user_model().objects,
+                        'Not unique',
+                    )
+                ]
+            },
+            'email': {
+                'validators': [
+                    UniqueValidator(
+                        get_user_model().objects,
+                        'Not unique',
+                    )
+                ]
+            },
         }
 
-    def validate_username(self, value):
-        if value == UNCORRECT_NAME:
+    def validate(self, attrs):
+        result, value = validate_fields(
+            '^me',
+            [attrs.get('username'), attrs.get('first_name')]
+        )
+        if result:
             raise serializers.ValidationError(
-                VALIDATION_MSG_NAME.format(UNCORRECT_NAME)
+                VALIDATION_MSG_NAME.format(value)
             )
-        return value
+        return attrs
 
     def create(self, validated_data):
         validated_data['password'] = make_password(

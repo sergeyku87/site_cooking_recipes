@@ -8,14 +8,14 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from users.models import Subscription
-from users.serializers import (
+from api.users.serializers import (
     AvatarSerializer,
     SubscribeSerializer,
     UserGETSerializer,
     UserPOSTSerializer,
 )
-from users.utils import delete_or_400
-from users.variables import (
+from api.fixtures.utils import delete_or_400
+from api.fixtures.variables import (
     ERROR_MSG_AVATAR,
     ERROR_MSG_SUBSCRIBE,
     ERROR_MSG_SUBSCRIBE_CREATE,

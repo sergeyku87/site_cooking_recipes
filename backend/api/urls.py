@@ -1,18 +1,11 @@
 from django.views.generic import TemplateView
 from django.urls import include, path
 
-from rest_framework.routers import SimpleRouter
+from api.ingredients.urls import router_v1_ingredients
+from api.recipes.urls import router_v1_recipes
+from api.tags.urls import router_v1_tags
+from api.users.urls import router_v1_users
 
-from ingredients.views import IngredientViewSet
-from recipes.views import RecipeViewSet
-from tags.views import TagViewSet
-from users.views import UserViewSet
-
-router_v1 = SimpleRouter()
-router_v1.register(r'users', UserViewSet, basename='user')
-router_v1.register(r'recipes', RecipeViewSet, basename='recipe')
-router_v1.register(r'tags', TagViewSet, basename='tag')
-router_v1.register(r'ingredients', IngredientViewSet, basename='ingredient')
 
 urlpatterns = [
     path('auth/', include('djoser.urls.authtoken')),
@@ -21,4 +14,7 @@ urlpatterns = [
     )
     )
 ]
-urlpatterns += router_v1.urls
+urlpatterns += router_v1_users.urls
+urlpatterns += router_v1_tags.urls
+urlpatterns += router_v1_recipes.urls
+urlpatterns += router_v1_ingredients.urls

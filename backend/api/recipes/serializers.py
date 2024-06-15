@@ -4,18 +4,18 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import serializers, validators
 
+from api.recipes.fields import CustomImageField
+from api.recipes.mixins import ValidateRecipeMixin
 from api.tags.serializers import TagSerializer
-from ingredients.models import Ingredient
-from recipes.fields import CustomImageField
-from recipes.mixins import ValidateRecipeMixin
-from recipes.models import Recipe, RecipeIngredient
-from recipes.utils import representation_image
-from recipes.variables import (
+from api.fixtures.utils import representation_image
+from api.fixtures.variables import (
     M2M,
     VALIDATE_MSG_COUNT_INGREDIENT,
     VALIDATE_MSG_EXIST_INGREDIENT,
     VALIDATE_MSG_UNIQUE,
 )
+from ingredients.models import Ingredient
+from recipes.models import Recipe, RecipeIngredient
 from users.models import Subscription
 
 

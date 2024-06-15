@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from tags.models import Tag
-from recipes.variables import (
+from api.fixtures.variables import (
     VALIDATE_MSG_COMMON,
     VALIDATE_MSG_EXIST_TAG,
 )

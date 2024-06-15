@@ -4,7 +4,12 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
 from users.models import Subscription
-from users.variables import ERROR_MSG_SUBSCRIBE, ERROR_MSG_SUBSCRIBE_CREATE
+from users.utils import validate_fields
+from users.variables import (
+    ERROR_MSG_SUBSCRIBE,
+    ERROR_MSG_SUBSCRIBE_CREATE,
+    VALIDATION_MSG_NAME,
+)
 
 
 class UserCreationForm(forms.ModelForm):
@@ -19,7 +24,14 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ('email', 'password', 'password2')
+        fields = (
+            'email',
+            'password',
+            'password2',
+            'username',
+            'first_name',
+            'last_name'
+        )
 
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
@@ -34,6 +46,16 @@ class UserCreationForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+    def clean(self):
+        data = self.cleaned_data
+        result, value = validate_fields(
+            '^me',
+            [data.get('username'), data.get('first_name')]
+        )
+        if result:
+            raise ValidationError(VALIDATION_MSG_NAME.format(value))
+        return data
 
 
 class UserChangeForm(forms.ModelForm):

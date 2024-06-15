@@ -118,5 +118,7 @@ Pillow==9.0.0
 }
 ```
 ***
-В файле config директории base установите значение DEVELOP в True, если вы в начале разработке, или False, если готовитесь развернуть проэкт на сервере.
-[^1]: OpenApi doc доступна после выполнения docker compose up в папке infra, по адресу http://localhost/api/docs/
+### Важно!
+>В файле `.env` установите значение `DJANGO_SETTINGS_MODULE` в `base.settings.develop`, если вы в начале разработке, и пока планируете использовать SQLite3 или `base.settings.product`, если готовитесь развернуть проeкт на сервере c Postgresql. Для запуска без докер образов небходимо скачать в виртуальное окружение `python-dotenv` командой `pip install python-dotenv` и в файле `manage.py` прописать `from dotenv import load_dotenv` вызвать функцию `load_dotenv` для добавления в переменные окружения данных из .env файла.
+
+[^1]: OpenApi doc доступна по адресу http://<>domain name<>/api/docs/

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from users.utils import base64_to_image, representation_image
+from api.fixtures.utils import base64_to_image, representation_image
 
 
 class CustomImageField(serializers.Field):

@@ -75,13 +75,14 @@ def base64_to_image(data, name_image='default'):
         name_image + '.' + ext,
         ext.upper(),
         sys.getsizeof(io_bytes),
-        None
+        None,
     )
     return image
 
 
 def debug(func):
-    """Decorator for input debug message in console."""
+    """Decorator for input debug mesage in console."""
+
     def inner(*args, **kwargs):
         print('-' * 30)
         logger.debug(f'{func.__name__!r}')
@@ -94,6 +95,7 @@ def debug(func):
         logger.debug(f'kwargs: {[kwarg for kwarg in kwargs]}')
         print('-' * 30)
         return func(*args, **kwargs)
+
     return inner
 
 
@@ -112,7 +114,11 @@ def delete_or_400(model, msg='Bad Request', *args, **kwargs):
     if model.objects.filter(*args, **kwargs).exists():
         model.objects.get(*args, **kwargs).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    return Response(
-        {'error': msg},
-        status=status.HTTP_400_BAD_REQUEST
-    )
+    return Response({'error': msg}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def validate_fields(sample, fields):
+    for value in fields:
+        if bool(re.search(sample, value)):
+            return True, value
+    return False, None

@@ -1,8 +1,9 @@
 from django.http import HttpResponse
+from django.template.loader import get_template
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
-from io import StringIO
+import pdfkit
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -13,29 +14,27 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from shortener import shortener
 
-
-from recipes.filters import RecipeFilter
+from api.recipes.filters import RecipeFilter
+from api.recipes.paginations import PageLimitPagination
+from api.recipes.permissions import IsOwner
+from api.recipes.serializers import (
+    CartOrFavoriteSerializer,
+    RecipeSerializer,
+)
+from api.fixtures.utils import delete_or_400
+from api.fixtures.variables import (
+    ERROR_RESPONSE_CART,
+    ERROR_RESPONSE_FAVORITE,
+    FORMAT_FULL_LINK,
+    FORMAT_SHORT_LINK,
+    PERMISSION_IS_AUTH,
+    PERMISSION_IS_OWNER,
+)
 from recipes.models import (
     Favorite,
     Recipe,
     RecipeIngredient,
     ShoppingCart,
-)
-from recipes.paginations import PageLimitPagination
-from recipes.permissions import IsOwner
-from api.recipes.serializers import (
-    CartOrFavoriteSerializer,
-    RecipeSerializer,
-)
-from recipes.utils import delete_or_400
-from recipes.variables import (
-    ERROR_RESPONSE_CART,
-    ERROR_RESPONSE_FAVORITE,
-    FORMAT_FILE_DOWNLOAD,
-    FORMAT_FULL_LINK,
-    FORMAT_SHORT_LINK,
-    PERMISSION_IS_AUTH,
-    PERMISSION_IS_OWNER,
 )
 
 
@@ -105,23 +104,12 @@ class RecipeViewSet(ModelViewSet):
                     )
                 ] += ingredient.amount
 
-        with StringIO() as buffer:
-            for ingredient, amount in ingredients_for_buy.items():
-                buffer.write(
-                    FORMAT_FILE_DOWNLOAD.format(
-                        ingredient[0],
-                        amount,
-                        ingredient[1],
-                    )
-                )
-            response = HttpResponse(
-                buffer.getvalue(),
-                content_type='text/plain'
-            )
-            response['Content-Disposition'] = (
-                'attachment; filename="list-for-buy.txt"'
-            )
-            return response
+        template = get_template('pdf.html')
+        html = template.render({'buy': ingredients_for_buy})
+        pdf = pdfkit.from_string(html, False)
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=output.pdf'
+        return response
 
     @action(['post', 'delete'], detail=True, url_path='shopping_cart')
     def shopping_cart(self, request, *args, **kwargs):

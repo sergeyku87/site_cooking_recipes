@@ -2,20 +2,21 @@
 import os
 import sys
 
-from base.config import DEVELOP
+
+if not os.getenv('DJANGO_SETTINGS_MODULE'):
+    sys.exit(
+        """
+        В файле .env необходим параметр DJANGO_SETTINGS_MODULE со
+        значением 'base.settings.develop' или 'base.settings.product'
+        """
+    )
 
 
 def main():
-    if DEVELOP:
-        os.environ.setdefault(
-            'DJANGO_SETTINGS_MODULE',
-            'base.settings.develop'
-        )
-    else:
-        os.environ.setdefault(
-            'DJANGO_SETTINGS_MODULE',
-            'base.settings.product'
-        )
+    os.environ.setdefault(
+        'DJANGO_SETTINGS_MODULE',
+        os.getenv('DJANGO_SETTINGS_MODULE')
+    )
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
