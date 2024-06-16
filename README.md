@@ -2,3 +2,13 @@
 # Сайт `Foodgram` для тебя! :spaghetti:
 ***
 
+__Используемые технологии__
+- Docker, Docker Compose
+- Postgresql
+- Nginx
+- Django, Django REST Framework
+***
+> Для запуска проекта находясь в папке infra введите в консоле `docker compose up`. Файл `docker-compose.product.yml` используется для развертывания на сервере. Для работоспособности проекта необходим файл `.env` в директории infra. Его образец находится в файле `example.env` - заполните его своими данными.
+***
+> В проекте используется _Git Action_ для DevOps практики CI/CD. Образы необходимые для работы на сервере расположены на DockerHub.
+***
