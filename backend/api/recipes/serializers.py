@@ -106,21 +106,25 @@ class RecipeSerializer(ValidateRecipeMixin, serializers.ModelSerializer):
         instance.save()
         return instance
 
-    def to_representation(self, instance):
+    def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         if request.user.is_authenticated:
             user = self.context.get('request').user
-            is_favorited = instance.favorite.filter(
+            return obj.shopping_cart.filter(
                 user=user,
-                recipe=instance,
+                recipe=obj,
             ).exists()
-            is_in_shopping_cart = instance.shopping_cart.filter(
+        return False
+
+    def get_is_favorited(self, obj):
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            user = self.context.get('request').user
+            return obj.favorite.filter(
                 user=user,
-                recipe=instance,
+                recipe=obj,
             ).exists()
-            instance.is_favorited = is_favorited
-            instance.is_in_shopping_cart = is_in_shopping_cart
-        return super().to_representation(instance)
+        return False
 
 
 class CartOrFavoriteSerializer(serializers.Serializer):
