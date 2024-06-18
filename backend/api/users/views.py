@@ -35,7 +35,9 @@ class UserViewSet(DjoserUserViewSet):
     def get_queryset(self):
         if self.action == 'subscriptions':
             return get_user_model().objects.filter(
-                subscriptions__in=Subscription.objects.filter(user=self.request.user)
+                subscriptions__in=Subscription.objects.filter(
+                    user=self.request.user
+                )
             )
         return get_user_model().objects.all()
 
