@@ -10,7 +10,7 @@ services:
     image: sergeyku87/foodgram-backend
     depends_on:
       - db
-    env_file: .env-develop
+    env_file: .env
     command: >
       sh -c "python3 manage.py makemigrations &&
              python3 manage.py migrate &&
@@ -32,7 +32,7 @@ services:
   db:
     container_name: foodgram-db
     image: postgres:13
-    env_file: .env-develop
+    env_file: .env
     volumes:
       - foodgram_pg_data:/var/lib/postgresql/data
 

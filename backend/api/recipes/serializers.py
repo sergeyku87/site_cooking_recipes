@@ -48,8 +48,8 @@ class RecipeSerializer(ValidateRecipeMixin, serializers.ModelSerializer):
     author = UserGETSerializer(read_only=True)
     tags = TagSerializer(many=True, required=True)
     image = CustomImageField()
-    is_favorited = serializers.BooleanField(required=False)
-    is_in_shopping_cart = serializers.BooleanField(required=False)
+    is_favorited = serializers.SerializerMethodField('get_is_favorited')
+    is_in_shopping_cart = serializers.SerializerMethodField('get_is_in_shopping_cart')
     ingredients = CustomIngredientSerializer(
         many=True,
         source='ingredients_for_recipe',
