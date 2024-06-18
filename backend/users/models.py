@@ -1,9 +1,12 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.db import models
 
-from users.variables import (
+from common.variables import (
     ALLOWED_LEN_EMAIL_OR_PASSWORD,
     ALLOWED_LEN_NAME,
+    ERROR_MSG,
 )
 
 
@@ -25,12 +28,14 @@ class User(AbstractUser):
     password = models.CharField(
         max_length=ALLOWED_LEN_EMAIL_OR_PASSWORD,
         verbose_name='Пароль',
+        validators=[validate_password]
     )
     avatar = models.ImageField(
         upload_to='avatars',
         blank=True,
         verbose_name='Аватар',
     )
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
@@ -59,3 +64,12 @@ class Subscription(models.Model):
     class Meta:
         verbose_name = 'Подписчики'
         verbose_name_plural = 'Подписчики'
+
+    def validate_unique(self, *args, **kwargs):
+        if self.user == self.subscriber:
+            raise ValidationError(ERROR_MSG['SUBSCRIBE'])
+        if Subscription.objects.filter(
+                user=self.user,
+                subscriber=self.subscriber,
+        ).exists():
+            raise ValidationError(ERROR_MSG['SUBSCRIBE_CREATE'])

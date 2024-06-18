@@ -2,7 +2,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from rest_framework import serializers
 
-from api.fixtures.variables import (
+from api.utils.variables import (
     REQUIRED_FIELDS_FOR_PATCH,
     VALIDATE_MSG_IMAGE,
     VALIDATE_MSG_INGREDIENT,
@@ -10,6 +10,7 @@ from api.fixtures.variables import (
     VALIDATE_MSG_UNIQUE_INGREDIENT,
     VALIDATE_MSG_UNIQUE_TAG,
 )
+from users.models import Subscription
 
 
 class ValidateRecipeMixin:
@@ -45,3 +46,13 @@ class ValidateRecipeMixin:
             ingredients = attrs.pop('ingredients_for_recipe')
             attrs.update(ingredients=ingredients)
         return super().validate(attrs)
+
+
+class CommonMethodMixin:
+    def get_is_subscribed(self, obj):
+        return Subscription.objects.filter(
+            user=obj,
+            subscriber=self.context.get('request').user,
+        ).exists() if (
+            self.context.get('request').user.is_authenticated
+        ) else False

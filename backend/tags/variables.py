@@ -1,1 +1,0 @@
-ALLOWED_LEN_NAME: int = 256

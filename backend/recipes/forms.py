@@ -1,11 +1,7 @@
 from django import forms
 from django.forms.models import BaseInlineFormSet
 
-from recipes.variables import VALIDATE_MSG_INGREDIENT
-
-
-class CsvImportForm(forms.Form):
-    csv_file = forms.FileField()
+from common.variables import VALIDATE_MSG_INGREDIENT
 
 
 class RicepeIngredientForm(BaseInlineFormSet):

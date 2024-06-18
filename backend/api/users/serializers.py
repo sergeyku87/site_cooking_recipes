@@ -1,21 +1,20 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.password_validation import validate_password
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import UniqueTogetherValidator
+
+from api.mixins import CommonMethodMixin
 
 from api.users.fields import CustomImageField
-from api.fixtures.utils import representation_image, validate_fields
-from api.fixtures.variables import (
+from api.utils.variables import (
     VALIDATION_MSG_ERROR,
-    VALIDATION_MSG_NAME,
 )
-from users.models import Subscription
+from common.utils import specific_validate
 
 
-class UserGETSerializer(serializers.ModelSerializer):
+class UserGETSerializer(CommonMethodMixin, serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField('get_is_subscribed')
 
     class Meta:
@@ -29,14 +28,6 @@ class UserGETSerializer(serializers.ModelSerializer):
             'is_subscribed',
             'avatar',
         )
-
-    def get_is_subscribed(self, obj):
-        if self.context.get('request').user.is_authenticated:
-            return Subscription.objects.filter(
-                user=obj,
-                subscriber=self.context.get('request').user,
-            ).exists()
-        return False
 
 
 class UserPOSTSerializer(serializers.ModelSerializer):
@@ -53,36 +44,17 @@ class UserPOSTSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {
                 'write_only': True,
-                'validators': [validate_password],
-            },
-            'username': {
-                'validators': [
-                    UniqueValidator(
-                        get_user_model().objects,
-                        'Not unique',
-                    )
-                ]
-            },
-            'email': {
-                'validators': [
-                    UniqueValidator(
-                        get_user_model().objects,
-                        'Not unique',
-                    )
-                ]
             },
         }
+        validators = [
+            UniqueTogetherValidator(
+                queryset=get_user_model().objects.all(),
+                fields=['email', 'username']
+            )
+        ]
 
     def validate(self, attrs):
-        result, value = validate_fields(
-            '^me',
-            [attrs.get('username'), attrs.get('first_name')]
-        )
-        if result:
-            raise serializers.ValidationError(
-                VALIDATION_MSG_NAME.format(value)
-            )
-        return attrs
+        return specific_validate(attrs, serializers.ValidationError)
 
     def create(self, validated_data):
         validated_data['password'] = make_password(
@@ -109,21 +81,7 @@ class AvatarSerializer(serializers.Serializer):
         return value
 
 
-class RecipeShortSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-    image = serializers.CharField()
-    cooking_time = serializers.IntegerField()
-
-    def to_representation(self, instance):
-        instance.image = representation_image(
-            self.context.get('request'),
-            instance.image.url
-        )
-        return super().to_representation(instance)
-
-
-class SubscribeSerializer(serializers.Serializer):
+class SubscribeSerializer(CommonMethodMixin, serializers.Serializer):
     email = serializers.EmailField()
     id = serializers.IntegerField()
     username = serializers.CharField()
@@ -137,15 +95,9 @@ class SubscribeSerializer(serializers.Serializer):
     def get_recipes_count(self, obj):
         return obj.recipes_user.count()
 
-    def get_is_subscribed(self, obj):
-        if self.context.get('request').user.is_authenticated:
-            return Subscription.objects.filter(
-                user=obj,
-                subscriber=self.context.get('request').user,
-            ).exists()
-        return False
-
     def get_recipes(self, obj):
+        from api.recipes.serializers import RecipeShortSerializer
+        # для избежания циклического импорта
         request = self.context.get('request')
         queryset = obj.recipes_user.all()
         if request.query_params.get('recipes_limit'):

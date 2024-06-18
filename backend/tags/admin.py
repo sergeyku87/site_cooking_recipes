@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from tags.mixins import CSVMixin
+from common.mixins import CSVMixin
 from tags.models import Tag
 
 

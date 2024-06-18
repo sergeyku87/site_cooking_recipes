@@ -2,11 +2,16 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from rest_framework import status
 from rest_framework.response import Response
+from collections import defaultdict
 import base64
 import io
 import logging
 import re
 import sys
+
+from api.utils.variables import (
+    VALIDATION_MSG_NAME,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -122,3 +127,25 @@ def validate_fields(sample, fields):
         if bool(re.search(sample, value)):
             return True, value
     return False, None
+
+
+def collect_to_dict(queryset):
+    collection = defaultdict(lambda: 0)
+    for value in queryset:
+        collection[
+            (
+                value.ingredient.name,
+                value.ingredient.measurement_unit
+            )
+        ] += value.amount
+    return dict(collection)
+
+
+def specific_validate(data, handelr_err):
+    result, value = validate_fields(
+        '^me',
+        [data.get('username'), data.get('first_name')]
+    )
+    if result:
+        raise handelr_err(VALIDATION_MSG_NAME.format(value))
+    return data

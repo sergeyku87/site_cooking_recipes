@@ -1,17 +1,14 @@
 from rest_framework import serializers
 
 from tags.models import Tag
-from api.fixtures.variables import (
+
+from api.utils.variables import (
     VALIDATE_MSG_COMMON,
     VALIDATE_MSG_EXIST_TAG,
 )
 
 
 class TagSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
-    name = serializers.CharField(read_only=True)
-    slug = serializers.SlugField(read_only=True)
-
     class Meta:
         model = Tag
         fields = 'id', 'name', 'slug',

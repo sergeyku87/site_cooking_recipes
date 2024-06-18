@@ -3,11 +3,15 @@ import os
 import sys
 
 
+if sys.argv[1] in ['runserver', 'makemigrations', 'migrate', 'createsuperuser']:
+    from dotenv import load_dotenv
+    load_dotenv()
+
 if not os.getenv('DJANGO_SETTINGS_MODULE'):
     sys.exit(
         """
         В файле .env необходим параметр DJANGO_SETTINGS_MODULE со
-        значением 'base.settings.develop' или 'base.settings.product'
+        значением 'config.settings.develop' или 'config.settings.product'
         """
     )
 

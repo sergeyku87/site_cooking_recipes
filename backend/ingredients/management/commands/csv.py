@@ -45,9 +45,7 @@ class Command(BaseCommand):
                         delimiter=',',
                         fieldnames=fieldnames
                     )
-                    ingredients = []
-                    for row in csv_reader:
-                        ingredients.append(Ingredient(**row))
+                    ingredients = (Ingredient(**row) for row in csv_reader)
                     Ingredient.objects.bulk_create(ingredients)
                     return 'successfully'
         except Exception as exc:

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from api.fixtures.utils import base64_to_image
-from api.fixtures.variables import VALIDATE_MSG_INGREDIENT
+from common.utils import base64_to_image
+from api.utils.variables import VALIDATE_MSG_INGREDIENT
 
 
 class CustomImageField(serializers.ImageField):

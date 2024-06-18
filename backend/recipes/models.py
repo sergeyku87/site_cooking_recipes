@@ -5,7 +5,7 @@ from django.db.models.signals import pre_init
 from django.dispatch import receiver
 
 from recipes.mixins import CommonForM2M
-from recipes.variables import ALLOWED_LEN_NAME, MINIMUM_TIME_COOKING
+from common.variables import ALLOWED_LEN_NAME, MINIMUM_TIME_COOKING
 
 
 class Recipe(models.Model):
@@ -16,7 +16,6 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         to='tags.Tag',
         verbose_name='Тег',
-        blank=True,
     )
     author = models.ForeignKey(
         to=get_user_model(),
@@ -29,17 +28,6 @@ class Recipe(models.Model):
         verbose_name='Ингредиенты',
         through='RecipeIngredient',
         related_name='recipes',
-        blank=True,
-    )
-    is_favorited = models.BooleanField(
-        choices=Status.choices,
-        default=Status.NOT_ADDED,
-        verbose_name='Рецепт в избранном',
-    )
-    is_in_shopping_cart = models.BooleanField(
-        choices=Status.choices,
-        default=Status.NOT_ADDED,
-        verbose_name='Рецепт в список покупок',
     )
     name = models.CharField(
         max_length=ALLOWED_LEN_NAME,

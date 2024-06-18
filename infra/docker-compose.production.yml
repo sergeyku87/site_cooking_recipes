@@ -8,13 +8,13 @@ services:
     image: sergeyku87/foodgram-backend
     depends_on:
       - db
-    env_file: .env
+    env_file: .env-product
     command: >
       sh -c "python3 manage.py makemigrations &&
              python3 manage.py migrate &&
              python3 manage.py collectstatic --noinput &&
              cp -r static_backend/. /static/static/ &&
-             gunicorn -b 0:8000 base.wsgi"
+             gunicorn -b 0:8000 config.wsgi"
     volumes:
       - foodgram_static:/static
       - foodgram_media:/media
@@ -27,7 +27,7 @@ services:
   
   db:
     image: postgres:13
-    env_file: .env
+    env_file: .env-product
     volumes:
       - foodgram_pg_data:/var/lib/postgresql/data
 

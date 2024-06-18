@@ -1,47 +1,21 @@
-from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 
 from rest_framework import serializers, validators
 
 from api.recipes.fields import CustomImageField
-from api.recipes.mixins import ValidateRecipeMixin
+from api.mixins import ValidateRecipeMixin
 from api.tags.serializers import TagSerializer
-from api.fixtures.utils import representation_image
-from api.fixtures.variables import (
+from api.users.serializers import UserGETSerializer
+from api.utils.variables import (
     M2M,
     VALIDATE_MSG_COUNT_INGREDIENT,
     VALIDATE_MSG_EXIST_INGREDIENT,
     VALIDATE_MSG_UNIQUE,
 )
+from common.utils import representation_image
 from ingredients.models import Ingredient
 from recipes.models import Recipe, RecipeIngredient
-from users.models import Subscription
-
-
-class AuthorSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField()
-
-    class Meta:
-        model = get_user_model()
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'avatar',
-        )
-
-    def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        if request.user.is_authenticated:
-            return Subscription.objects.filter(
-                user=self.context.get('request').user,
-                subscriber=obj,
-            ).exists()
-        return False
 
 
 class CustomIngredientSerializer(serializers.ModelSerializer):
@@ -71,7 +45,7 @@ class CustomIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(ValidateRecipeMixin, serializers.ModelSerializer):
-    author = AuthorSerializer(read_only=True)
+    author = UserGETSerializer(read_only=True)
     tags = TagSerializer(many=True, required=True)
     image = CustomImageField()
     is_favorited = serializers.BooleanField(required=False)
@@ -121,10 +95,12 @@ class RecipeSerializer(ValidateRecipeMixin, serializers.ModelSerializer):
                         getattr(instance, key).set(value)
                     elif key == 'ingredients':
                         for val in value:
+                            getattr(instance, 'ingredients').clear()
                             getattr(instance, 'ingredients').add(
                                 val['ingredient'],
                                 through_defaults={'amount': val['amount']}
                             )
+
                 else:
                     setattr(instance, key, value)
         instance.save()
@@ -159,3 +135,17 @@ class CartOrFavoriteSerializer(serializers.Serializer):
             value.image.url
         )
         return super().to_representation(value)
+
+
+class RecipeShortSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    image = serializers.CharField()
+    cooking_time = serializers.IntegerField()
+
+    def to_representation(self, instance):
+        instance.image = representation_image(
+            self.context.get('request'),
+            instance.image.url
+        )
+        return super().to_representation(instance)

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from users.forms import SubscriptionForm, UserChangeForm, UserCreationForm
+from users.forms import UserChangeForm, UserCreationForm
 from users.models import Subscription
 
 
@@ -28,10 +28,8 @@ class UserAdmin(BaseUserAdmin):
     )
     search_fields = ('username', 'email',)
     ordering = ('email',)
-    filter_horizontal = ()
 
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-    form = SubscriptionForm
     list_display = ('user', 'subscriber')

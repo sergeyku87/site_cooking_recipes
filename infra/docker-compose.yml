@@ -7,15 +7,16 @@ services:
   backend:
     container_name: foodgram-backend
     build: ../backend/
+    image: sergeyku87/foodgram-backend
     depends_on:
       - db
-    env_file: .env
+    env_file: .env-develop
     command: >
       sh -c "python3 manage.py makemigrations &&
              python3 manage.py migrate &&
              python3 manage.py collectstatic --noinput &&
              cp -r static_backend/. /static/static/ &&
-             gunicorn -b 0:8000 base.wsgi"
+             gunicorn -b 0:8000 config.wsgi"
     volumes:
       - foodgram_static:/static
       - foodgram_media:/media
@@ -23,6 +24,7 @@ services:
   frontend:
     container_name: foodgram-frontend
     build: ../frontend
+    image: sergeyku87/foodgram-frontend
     command: cp -r /app/build/. /static_frontend/
     volumes:
       - foodgram_static:/static_frontend
@@ -30,13 +32,14 @@ services:
   db:
     container_name: foodgram-db
     image: postgres:13
-    env_file: .env
+    env_file: .env-develop
     volumes:
       - foodgram_pg_data:/var/lib/postgresql/data
 
   gateway:
     container_name: foodgram-gateway
     build: ../nginx/
+    image: sergeyku87/foodgram-gateway
     ports:
       - 7000:80
     depends_on:
@@ -45,4 +48,3 @@ services:
     volumes:
       - foodgram_static:/static/
       - foodgram_media:/media/
-

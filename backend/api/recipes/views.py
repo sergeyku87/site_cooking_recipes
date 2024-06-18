@@ -15,14 +15,13 @@ from rest_framework.viewsets import ModelViewSet
 from shortener import shortener
 
 from api.recipes.filters import RecipeFilter
-from api.recipes.paginations import PageLimitPagination
-from api.recipes.permissions import IsOwner
+from api.paginations import PageLimitPagination
+from api.permissions import IsOwner
 from api.recipes.serializers import (
     CartOrFavoriteSerializer,
     RecipeSerializer,
 )
-from api.fixtures.utils import delete_or_400
-from api.fixtures.variables import (
+from api.utils.variables import (
     ERROR_RESPONSE_CART,
     ERROR_RESPONSE_FAVORITE,
     FORMAT_FULL_LINK,
@@ -30,6 +29,7 @@ from api.fixtures.variables import (
     PERMISSION_IS_AUTH,
     PERMISSION_IS_OWNER,
 )
+from common.utils import collect_to_dict, delete_or_400
 from recipes.models import (
     Favorite,
     Recipe,
@@ -83,95 +83,81 @@ class RecipeViewSet(ModelViewSet):
             user=request.user.id
         ).values_list('recipe__id', flat=True)
         ingredients = RecipeIngredient.objects.filter(recipe_id__in=cart)
-        ingredients_for_buy = {}
-
-        for ingredient in ingredients:
-            if not (
-                ingredient.ingredient.name,
-                ingredient.ingredient.measurement_unit
-            ) in ingredients_for_buy:
-                ingredients_for_buy[
-                    (
-                        ingredient.ingredient.name,
-                        ingredient.ingredient.measurement_unit
-                    )
-                ] = ingredient.amount
-            else:
-                ingredients_for_buy[
-                    (
-                        ingredient.ingredient.name,
-                        ingredient.ingredient.measurement_unit
-                    )
-                ] += ingredient.amount
 
         template = get_template('pdf.html')
-        html = template.render({'buy': ingredients_for_buy})
+        html = template.render(
+            {'buy': collect_to_dict(ingredients)}
+        )
         pdf = pdfkit.from_string(html, False)
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename=output.pdf'
         return response
 
-    @action(['post', 'delete'], detail=True, url_path='shopping_cart')
+    @action(['post'], detail=True, url_path='shopping_cart')
     def shopping_cart(self, request, *args, **kwargs):
-        if request.method == 'POST' or request.method == 'DELETE':
-            recipe = get_object_or_404(
-                Recipe,
-                id=kwargs.get('pk')
+        recipe = get_object_or_404(
+            Recipe,
+            id=kwargs.get('pk')
+        )
+        _, created = ShoppingCart.objects.get_or_create(
+            user=request.user,
+            recipe=recipe,
+        )
+        if not created:
+            return Response(
+                {'error': ERROR_RESPONSE_CART},
+                status=status.HTTP_400_BAD_REQUEST
             )
-        if request.method == 'POST':
-            _, created = ShoppingCart.objects.get_or_create(
-                user=request.user,
-                recipe=recipe,
-            )
-            if not created:
-                return Response(
-                    {'error': ERROR_RESPONSE_CART},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-        if request.method == 'DELETE':
-            return delete_or_400(
-                ShoppingCart,
-                user=request.user,
-                recipe=recipe,
-            )
-
         serializer = CartOrFavoriteSerializer(
             recipe,
             context={'request': request}
         )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(['post', 'delete'], detail=True,)
+    @shopping_cart.mapping.delete
+    def delete_shopping_cart(self, request, *args, **kwargs):
+        recipe = get_object_or_404(
+            Recipe,
+            id=kwargs.get('pk')
+        )
+        return delete_or_400(
+            ShoppingCart,
+            user=request.user,
+            recipe=recipe,
+        )
+
+    @action(['post'], detail=True,)
     def favorite(self, request, *args, **kwargs):
-        if request.method == 'POST' or request.method == 'DELETE':
-            recipe = get_object_or_404(
-                Recipe,
-                id=kwargs.get('pk')
+        recipe = get_object_or_404(
+            Recipe,
+            id=kwargs.get('pk')
+        )
+        _, created = Favorite.objects.get_or_create(
+            user=request.user,
+            recipe=recipe,
+        )
+        if not created:
+            return Response(
+                {'error': ERROR_RESPONSE_FAVORITE},
+                status=status.HTTP_400_BAD_REQUEST
             )
-        if request.method == 'POST':
-            _, created = Favorite.objects.get_or_create(
-                user=request.user,
-                recipe=recipe,
-            )
-            if not created:
-                return Response(
-                    {'error': ERROR_RESPONSE_FAVORITE},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-        if request.method == 'DELETE':
-            return delete_or_400(
-                Favorite,
-                user=request.user,
-                recipe=recipe,
-            )
-
         serializer = CartOrFavoriteSerializer(
             recipe,
             context={'request': request}
         )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @favorite.mapping.delete
+    def delete_favorite(self, request, *args, **kwargs):
+        recipe = get_object_or_404(
+            Recipe,
+            id=kwargs.get('pk')
+        )
+        return delete_or_400(
+            Favorite,
+            user=request.user,
+            recipe=recipe,
+        )
 
     def get_permissions(self):
         if self.action in PERMISSION_IS_AUTH:

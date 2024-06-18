@@ -28,26 +28,12 @@ class RecipeFilter(django_filters.FilterSet):
 
     def filter_favorited(self, queryset, name, value):
         user = self.request.user
-        if user.is_authenticated:
-            id_favorited = []
-            for recipe in queryset:
-                if recipe.favorite.filter(
-                    user=user,
-                    recipe=recipe
-                ).exists():
-                    id_favorited.append(recipe.id)
-            return queryset.filter(id__in=id_favorited)
+        if user.is_authenticated and value:
+            return queryset.filter(favorite__user=user)
         return queryset
 
     def filter_cart(self, queryset, name, value):
         user = self.request.user
-        if user.is_authenticated:
-            id_shoping_cart = []
-            for recipe in queryset:
-                if recipe.shopping_cart.filter(
-                    user=user,
-                    recipe=recipe
-                ).exists():
-                    id_shoping_cart.append(recipe.id)
-            return queryset.filter(id__in=id_shoping_cart)
+        if user.is_authenticated and value:
+            return queryset.filter(shopping_cart__user=user)
         return queryset

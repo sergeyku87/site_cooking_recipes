@@ -3,13 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from users.models import Subscription
-from users.utils import validate_fields
-from users.variables import (
-    ERROR_MSG_SUBSCRIBE,
-    ERROR_MSG_SUBSCRIBE_CREATE,
-    VALIDATION_MSG_NAME,
-)
+from common.utils import specific_validate
 
 
 class UserCreationForm(forms.ModelForm):
@@ -48,14 +42,7 @@ class UserCreationForm(forms.ModelForm):
         return user
 
     def clean(self):
-        data = self.cleaned_data
-        result, value = validate_fields(
-            '^me',
-            [data.get('username'), data.get('first_name')]
-        )
-        if result:
-            raise ValidationError(VALIDATION_MSG_NAME.format(value))
-        return data
+        return specific_validate(self.cleaned_data, ValidationError)
 
 
 class UserChangeForm(forms.ModelForm):
@@ -64,20 +51,3 @@ class UserChangeForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ('email', 'password', 'is_active', )
-
-
-class SubscriptionForm(forms.ModelForm):
-    class Meta:
-        model = Subscription
-        fields = '__all__'
-
-    def clean(self):
-        data = self.cleaned_data
-        if data.get('user') == data.get('subscriber'):
-            raise forms.ValidationError(ERROR_MSG_SUBSCRIBE)
-        elif Subscription.objects.filter(
-            user=data.get('user'),
-            subscriber=data.get('subscriber'),
-        ).exists():
-            raise forms.ValidationError(ERROR_MSG_SUBSCRIBE_CREATE)
-        return data

@@ -1,6 +1,6 @@
 from django.db import models
 
-from ingredients.variables import ALLOWED_LEN_NAME
+from common.variables import ALLOWED_LEN_NAME
 
 
 class Ingredient(models.Model):

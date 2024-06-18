@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from ingredients.mixins import CSVMixin
+from common.mixins import CSVMixin
 from ingredients.models import Ingredient
 
 

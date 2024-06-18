@@ -1,10 +1,9 @@
-
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from django.contrib.auth.hashers import make_password
+from django.urls import reverse
 
-from rest_framework.test import APIClient, APITestCase
 from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient, APITestCase
 
 
 class FixtureMixin(APITestCase):

@@ -2,17 +2,14 @@ from django.shortcuts import redirect, render
 from django.urls import path
 
 import csv
-
-from tags.forms import CsvImportForm
+from common.forms import CsvImportForm
 
 
 class CSVMixin():
     def get_urls(self):
         urls = super().get_urls()
-        my_urls = [
-            path('csv-upload/', self.upload_csv),
-        ]
-        return my_urls + urls
+        urls.extend([path('csv-upload/', self.upload_csv)])
+        return urls
 
     def upload_csv(self, request):
         if request.method == 'POST':
