@@ -10,17 +10,16 @@ from rest_framework.response import Response
 from users.models import Subscription
 from api.users.serializers import (
     AvatarSerializer,
+    SubSerializer,
     SubscribeSerializer,
     UserGETSerializer,
     UserPOSTSerializer,
 )
 from api.utils.variables import (
     ERROR_MSG_AVATAR,
-    ERROR_MSG_SUBSCRIBE,
-    ERROR_MSG_SUBSCRIBE_CREATE,
     PERMISSION_VARIABLES,
 )
-from common.utils import delete_or_400
+from api.utils.utils import delete_or_400
 
 
 class UserViewSet(DjoserUserViewSet):
@@ -91,31 +90,12 @@ class UserViewSet(DjoserUserViewSet):
 
     @action(['post'], detail=True,)
     def subscribe(self, request, *args, **kwargs):
-        if request.user.id == int(kwargs.get('id')):
-            return Response(
-                {'error': ERROR_MSG_SUBSCRIBE},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        subscriber = get_object_or_404(
-            get_user_model(),
-            id=kwargs.get('id')
-        )
-        _, created = Subscription.objects.get_or_create(
-            user=request.user,
-            subscriber=subscriber,
-        )
-
-        if not created:
-            return Response(
-                {'error': ERROR_MSG_SUBSCRIBE_CREATE},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        serializer = SubscribeSerializer(
-            subscriber,
+        serializer = SubSerializer(
+            data=kwargs,
             context={'request': request}
         )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete

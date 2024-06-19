@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.shortcuts import get_object_or_404
@@ -18,18 +19,17 @@ from api.recipes.filters import RecipeFilter
 from api.paginations import PageLimitPagination
 from api.permissions import IsOwner
 from api.recipes.serializers import (
-    CartOrFavoriteSerializer,
+    CartSerializer,
+    FavoriteSerializer,
     RecipeSerializer,
 )
 from api.utils.variables import (
-    ERROR_RESPONSE_CART,
-    ERROR_RESPONSE_FAVORITE,
     FORMAT_FULL_LINK,
     FORMAT_SHORT_LINK,
     PERMISSION_IS_AUTH,
     PERMISSION_IS_OWNER,
 )
-from common.utils import collect_to_dict, delete_or_400
+from api.utils.utils import delete_or_400
 from recipes.models import (
     Favorite,
     Recipe,
@@ -79,14 +79,16 @@ class RecipeViewSet(ModelViewSet):
 
     @action(['get'], detail=False)
     def download_shopping_cart(self, request, *args, **kwargs):
-        cart = ShoppingCart.objects.filter(
-            user=request.user.id
-        ).values_list('recipe__id', flat=True)
-        ingredients = RecipeIngredient.objects.filter(recipe_id__in=cart)
+        result = RecipeIngredient.objects.filter(
+            recipe__shopping_cart__user=request.user,
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit',
+        ).annotate(total=Sum('amount'))
 
         template = get_template('pdf.html')
         html = template.render(
-            {'buy': collect_to_dict(ingredients)}
+            {'buy': result}
         )
         pdf = pdfkit.from_string(html, False)
         response = HttpResponse(pdf, content_type='application/pdf')
@@ -95,23 +97,12 @@ class RecipeViewSet(ModelViewSet):
 
     @action(['post'], detail=True, url_path='shopping_cart')
     def shopping_cart(self, request, *args, **kwargs):
-        recipe = get_object_or_404(
-            Recipe,
-            id=kwargs.get('pk')
-        )
-        _, created = ShoppingCart.objects.get_or_create(
-            user=request.user,
-            recipe=recipe,
-        )
-        if not created:
-            return Response(
-                {'error': ERROR_RESPONSE_CART},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        serializer = CartOrFavoriteSerializer(
-            recipe,
+        serializer = CartSerializer(
+            data=kwargs,
             context={'request': request}
         )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @shopping_cart.mapping.delete
@@ -128,23 +119,12 @@ class RecipeViewSet(ModelViewSet):
 
     @action(['post'], detail=True,)
     def favorite(self, request, *args, **kwargs):
-        recipe = get_object_or_404(
-            Recipe,
-            id=kwargs.get('pk')
-        )
-        _, created = Favorite.objects.get_or_create(
-            user=request.user,
-            recipe=recipe,
-        )
-        if not created:
-            return Response(
-                {'error': ERROR_RESPONSE_FAVORITE},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        serializer = CartOrFavoriteSerializer(
-            recipe,
+        serializer = FavoriteSerializer(
+            data=kwargs,
             context={'request': request}
         )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @favorite.mapping.delete

@@ -7,11 +7,10 @@ from common.forms import CsvImportForm
 
 class CSVMixin():
     def get_urls(self):
-        urls = super().get_urls()
         my_urls = [
             path('csv-upload/', self.upload_csv)
         ]
-        my_urls.extend(urls)
+        my_urls.extend(super().get_urls())
         return my_urls
 
     def upload_csv(self, request):

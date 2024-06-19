@@ -11,8 +11,6 @@ ALLOWED_LEN_NAME: int = 256
 MINIMUM_TIME_COOKING: int = 1
 REQUIRED_FIELDS_FOR_PATCH: tuple = ('ingredients', 'tags')
 
-M2M = 'ManyRelatedManager'
-
 FORMAT_FULL_LINK: str = '{}://{}/{}'
 FORMAT_SHORT_LINK: str = '{}://{}/s/{}'
 

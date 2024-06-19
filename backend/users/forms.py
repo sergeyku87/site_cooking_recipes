@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from common.utils import specific_validate
+from api.utils.utils import specific_validate
 
 
 class UserCreationForm(forms.ModelForm):

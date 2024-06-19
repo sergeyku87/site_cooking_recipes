@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.shortcuts import get_object_or_404
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -9,9 +10,12 @@ from api.mixins import CommonMethodMixin
 
 from api.users.fields import CustomImageField
 from api.utils.variables import (
+    ERROR_MSG_SUBSCRIBE,
+    ERROR_MSG_SUBSCRIBE_CREATE,
     VALIDATION_MSG_ERROR,
 )
-from common.utils import specific_validate
+from api.utils.utils import specific_validate
+from users.models import Subscription
 
 
 class UserGETSerializer(CommonMethodMixin, serializers.ModelSerializer):
@@ -107,4 +111,33 @@ class SubscribeSerializer(CommonMethodMixin, serializers.Serializer):
             queryset,
             many=True,
             context={'request': request}
+        ).data
+
+
+class SubSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+
+    def validate_id(self, obj):
+        user_id = self.context.get('request').user.id
+        if user_id == obj:
+            raise serializers.ValidationError(ERROR_MSG_SUBSCRIBE)
+        return get_object_or_404(
+            get_user_model(),
+            id=obj,
+        )
+
+    def create(self, validated_data):
+        print(validated_data)
+        instance, created = Subscription.objects.get_or_create(
+            user=self.context.get('request').user,
+            subscriber=validated_data.get('id'),
+        )
+        if not created:
+            raise serializers.ValidationError(ERROR_MSG_SUBSCRIBE_CREATE)
+        return instance.subscriber
+
+    def to_representation(self, instance):
+        return SubscribeSerializer(
+            instance,
+            context={'request': self.context.get('request')},
         ).data

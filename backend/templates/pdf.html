@@ -7,8 +7,8 @@
 </head>
 <body>
   <h1> Вот список твоих покупок :) </h1>
-    {% for key, value in buy.items %}
-      <h4>{{key.0}} - {{value}} {{key.1}}</h4>
+    {% for value in buy %}
+      <h4>{{value.ingredient__name}} - {{value.total}} {{value.ingredient__measurement_unit}} </h4>
     {% endfor %}
 </body>
 </html>
