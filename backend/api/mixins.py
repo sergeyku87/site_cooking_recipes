@@ -50,9 +50,10 @@ class ValidateRecipeMixin:
 
 class CommonMethodMixin:
     def get_is_subscribed(self, obj):
-        return Subscription.objects.filter(
-            user=obj,
-            subscriber=self.context.get('request').user,
-        ).exists() if (
-            self.context.get('request').user.is_authenticated
-        ) else False
+        return (
+            Subscription.objects.filter(
+                user=obj,
+                subscriber=self.context.get('request').user,
+            ).exists()
+            and self.context.get('request').user.is_authenticated
+        )
