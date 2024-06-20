@@ -127,7 +127,6 @@ class SubSerializer(serializers.Serializer):
         )
 
     def create(self, validated_data):
-        print(validated_data)
         instance, created = Subscription.objects.get_or_create(
             user=self.context.get('request').user,
             subscriber=validated_data.get('id'),
